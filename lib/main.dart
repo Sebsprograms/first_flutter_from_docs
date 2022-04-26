@@ -57,8 +57,7 @@ class TitleBar extends StatelessWidget {
               ],
             ),
           ),
-          const Text("93"),
-          const Icon(Icons.star, color: Colors.red),
+          Favorites(),
         ],
       ),
     );
@@ -100,6 +99,50 @@ class LinkBar extends StatelessWidget {
           ]),
         ],
       ),
+    );
+  }
+}
+
+class Favorites extends StatefulWidget {
+  const Favorites({Key? key}) : super(key: key);
+
+  @override
+  State<Favorites> createState() => _FavoritesState();
+}
+
+class _FavoritesState extends State<Favorites> {
+  bool _isFavorited = true;
+  int _favoriteCount = 93;
+
+  void _toggleFav() {
+    setState(() {
+      _isFavorited = !_isFavorited;
+      if (_isFavorited) {
+        _favoriteCount = 93;
+      } else {
+        _favoriteCount = 92;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(0),
+          child: IconButton(
+            icon: (_isFavorited
+                ? const Icon(Icons.star)
+                : const Icon(Icons.star_border)),
+            color: Colors.red,
+            onPressed: _toggleFav,
+          ),
+        ),
+        SizedBox(
+          child: Text("$_favoriteCount"),
+        )
+      ],
     );
   }
 }
