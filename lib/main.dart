@@ -1,14 +1,46 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int rng = Random().nextInt(10);
+  void generateRandomIndex() {
+    rng = Random().nextInt(10);
+  }
+
+  final _url = "https://private-anon-dc60d63e9a-carsapi1.apiary-mock.com/cars";
+  var _data = [];
+
+  void fetchPost() async {
+    try {
+      final response = await http.get(Uri.parse(_url));
+      final jsonData = jsonDecode(response.body) as List;
+
+      setState(() {
+        _data = jsonData;
+      });
+    } catch (err) {
+      print("No response from server.");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    fetchPost();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter layout demo',
@@ -18,18 +50,49 @@ class MyApp extends StatelessWidget {
           width: double.infinity,
           child: Column(
             children: [
-              Image.network(
-                  "https://www.topgear.com/sites/default/files/images/news-article/2018/08/5fea3e9cce58cc4be329b29854e6aa96/2014_mercedes-benz_sls_amg_black_series_0115.jpg"),
+              Image.network("${_data[rng]['img_url']}"),
               const TitleBar(),
               const LinkBar(),
-              Container(
-                padding: EdgeInsets.all(18),
-                child: const Text(
-                    "One is created when Mercedes' in-house AMG performance shop tires of building mere 500-plus-hp commuters and pumps out something that packs the fury and power of a supernova. The 2014 Mercedes-Benz SLS AMG Black Series is the fifth car to earn the badge. The Europe-only SLK55 AMG Black Series of 2006 was the first and was followed by a CLK63, an SL65, and a C63 that were all available here. With an estimated price of \$250,000 and fewer than 200 making their way to the United States, the SLS Black is the most expensive and most exclusive Mercedes of the moment.",
-                    style: TextStyle(fontSize: 17)),
-              ),
+              Center(
+                heightFactor: 1.75,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Year: ${_data[rng]['year']}",
+                            style: TextStyle(fontSize: 18)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("HP: ${_data[rng]['horsepower']}",
+                            style: TextStyle(fontSize: 18)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Price: \$${_data[rng]['price']}",
+                            style: TextStyle(fontSize: 18)),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
+        ),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.amber,
+          child: Container(
+            height: 40,
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: FloatingActionButton(
+          onPressed: generateRandomIndex,
+          backgroundColor: Color.fromARGB(255, 10, 10, 10),
+          child: const Icon(Icons.swap_horizontal_circle_rounded, size: 40),
         ),
       ),
     );
@@ -48,12 +111,12 @@ class TitleBar extends StatelessWidget {
         children: [
           Expanded(
             child: Column(
-              children: const [
+              children: [
                 Text(
-                  "Mercedes SLS Amg Black Series",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  "Mercedes",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text("631 HP - 0-60 in 3.3s")
+                Text("SLS - AMG")
               ],
             ),
           ),
